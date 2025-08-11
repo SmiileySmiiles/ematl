@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stress = Force / Area — Simple Teaching Applet</title>
+<style>
+  body{margin:0;font-family:Arial, sans-serif;background:#f2f5ff;color:#222;}
+  header{background:#4a64d4;color:#fff;padding:12px;text-align:center;font-size:20px;font-weight:bold;}
+  main{max-width:600px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);}
+  label{display:block;margin-top:12px;font-weight:bold;}
+  input{width:100%;padding:8px;margin-top:4px;border:1px solid #ccc;border-radius:6px;font-size:16px;}
+  .output{margin-top:20px;padding:12px;background:#eef2ff;border-radius:8px;text-align:center;font-size:18px;font-weight:bold;}
+  canvas{display:block;margin:20px auto;background:#eef;border:1px solid #ccc;border-radius:8px;}
+  .uts{margin-top:10px;font-size:16px;color:#444;background:#f9f9f9;padding:8px;border-radius:6px;}
+</style>
+</head>
+<body>
+<header>Stress = Force / Area</header>
+<main>
+  <p>This simple applet shows how stress changes when you change the force or the area. Stress is given by:</p>
+  <p style="text-align:center;font-size:18px;font-weight:bold;">σ = F / A</p>
+
+  <label for="force">Force F (Newtons)</label>
+  <input type="number" id="force" value="100" min="0" step="1">
+
+  <label for="area">Area A (mm²)</label>
+  <input type="number" id="area" value="100" min="0.1" step="0.1">
+
+  <div class="output" id="stressOut">Stress = 1.00 N/mm²</div>
+  <div class="uts">Material: Plain Carbon Steel — Ultimate Tensile Strength ≈ 400 MPa</div>
+
+  <canvas id="viz" width="400" height="200"></canvas>
+</main>
+
+<script>
+const forceInput = document.getElementById('force');
+const areaInput = document.getElementById('area');
+const stressOut = document.getElementById('stressOut');
+const canvas = document.getElementById('viz');
+const ctx = canvas.getContext('2d');
+const utsMPa = 400; // Ultimate Tensile Strength in MPa
+
+function update(){
+  const F = parseFloat(forceInput.value);
+  const A = parseFloat(areaInput.value);
+  const stress = F / A; // N/mm² (MPa)
+  stressOut.textContent = `Stress = ${stress.toFixed(2)} N/mm² (${stress.toFixed(2)} MPa)`;
+  draw(F, A, stress);
+}
+
+function draw(F, A, stress){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const blockWidth = Math.max(40, A/5);
+  ctx.fillStyle = '#88aaff';
+  ctx.fillRect(200 - blockWidth/2, 80, blockWidth, 40);
+  ctx.strokeStyle = '#444';
+  ctx.strokeRect(200 - blockWidth/2, 80, blockWidth, 40);
+  ctx.fillStyle = '#000';
+  ctx.font = '14px Arial';
+  ctx.fillText(`Area = ${A.toFixed(2)} mm²`, 150, 140);
+
+  ctx.strokeStyle = '#ff4444';
+  ctx.fillStyle = '#ff4444';
+  ctx.beginPath();
+  ctx.moveTo(200, 60);
+  ctx.lineTo(200, 80);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(195, 80);
+  ctx.lineTo(205, 80);
+  ctx.lineTo(200, 90);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillText(`Force = ${F.toFixed(1)} N`, 150, 50);
+
+  // Stress bar scaling so that 400 MPa is 100%
+  const barLength = Math.min(300, (stress / utsMPa) * 300);
+  ctx.fillStyle = '#44cc44';
+  ctx.fillRect(50, 170, barLength, 15);
+  ctx.strokeStyle = '#333';
+  ctx.strokeRect(50, 170, 300, 15);
+  ctx.fillStyle = '#000';
+  ctx.fillText('Stress level (relative to UTS)', 50, 165);
+}
+
+forceInput.addEventListener('input', update);
+areaInput.addEventListener('input', update);
+update();
+</script>
+</body>
+</html>
